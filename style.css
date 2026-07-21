@@ -64,6 +64,7 @@
 
 .promatic_dashboard_enhancer-speeding-panel {
     margin-top: 12px;
+    max-width: 480px; /* el chart no necesita ocupar todo el ancho del panel */
 }
 
 .promatic_dashboard_enhancer-chart {
