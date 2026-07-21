@@ -30,13 +30,133 @@ Ext.define('Store.promatic_dashboard_enhancer.Module', {
     },
 
     buildMainPanel: function () {
-        return Ext.create('Ext.panel.Panel', {
-            cls: 'promatic_dashboard_enhancer-panel',
-            layout: 'fit',
-            html: '<div class="promatic_dashboard_enhancer-status">' +
-                l('Promatic Dashboard — conexión OK') +
-                '</div>'
+        this.summaryBar = Ext.create('Ext.Component', {
+            cls: 'promatic_dashboard_enhancer-summary',
+            html: l('Cargando estado de flota...')
         });
+
+        var panel = Ext.create('Ext.panel.Panel', {
+            cls: 'promatic_dashboard_enhancer-panel',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: [
+                this.summaryBar,
+                this.buildFleetGrid()
+            ]
+        });
+
+        this.bindFleetUpdates();
+
+        return panel;
+    },
+
+    buildFleetGrid: function () {
+        this.fleetStore = Ext.create('Ext.data.Store', {
+            fields: ['agentid', 'name', 'group', 'driver', 'isOnline', 'statusText', 'lastUpdate']
+        });
+
+        return Ext.create('Ext.grid.Panel', {
+            store: this.fleetStore,
+            flex: 1,
+            columns: [
+                { text: l('Vehículo'), dataIndex: 'name', flex: 2 },
+                { text: l('Grupo'), dataIndex: 'group', flex: 1 },
+                { text: l('Conductor'), dataIndex: 'driver', flex: 1 },
+                {
+                    text: l('Estado'),
+                    dataIndex: 'isOnline',
+                    flex: 1,
+                    renderer: function (value) {
+                        return value ?
+                            '<span class="promatic_dashboard_enhancer-dot promatic_dashboard_enhancer-dot-online"></span> ' + l('En línea') :
+                            '<span class="promatic_dashboard_enhancer-dot promatic_dashboard_enhancer-dot-offline"></span> ' + l('Desconectado');
+                    }
+                },
+                { text: l('Último estado'), dataIndex: 'statusText', flex: 2 },
+                { text: l('Última actualización'), dataIndex: 'lastUpdate', flex: 1 }
+            ]
+        });
+    },
+
+    getOnlineTree: function () {
+        return (window.skeleton && skeleton.navigation && skeleton.navigation.online &&
+            skeleton.navigation.online.online_tree) || null;
+    },
+
+    bindFleetUpdates: function (attempt) {
+        attempt = attempt || 0;
+        var onlineTree = this.getOnlineTree();
+
+        if (!onlineTree) {
+            if (attempt < 20) {
+                Ext.defer(this.bindFleetUpdates, 500, this, [attempt + 1]);
+            } else if (this.summaryBar) {
+                this.summaryBar.update(l('No se pudo conectar al árbol de vehículos de PILOT.'));
+            }
+            return;
+        }
+
+        onlineTree.getStore().on('datachanged', this.refreshFleetStore, this);
+        onlineTree.getStore().on('update', this.refreshFleetStore, this);
+        this.refreshFleetStore();
+    },
+
+    refreshFleetStore: function () {
+        var onlineTree = this.getOnlineTree();
+        if (!onlineTree || !this.fleetStore) {
+            return;
+        }
+
+        var records = onlineTree.getStore().getData().items;
+        var rows = [];
+
+        for (var i = 0; i < records.length; i++) {
+            var r = records[i];
+            var agentid = r.get('agentid');
+
+            if (!agentid) {
+                continue; // nodo de grupo/carpeta, no un vehículo
+            }
+
+            rows.push({
+                agentid: agentid,
+                name: r.get('name'),
+                group: r.get('group'),
+                driver: r.get('driver'),
+                isOnline: !!r.get('is_server_online'),
+                statusText: r.get('status'),
+                lastUpdate: r.get('msg1')
+            });
+        }
+
+        this.fleetStore.loadData(rows);
+        this.updateSummary();
+    },
+
+    updateSummary: function () {
+        if (!this.summaryBar || !this.fleetStore) {
+            return;
+        }
+
+        var total = this.fleetStore.getCount();
+        var online = 0;
+
+        this.fleetStore.each(function (rec) {
+            if (rec.get('isOnline')) {
+                online++;
+            }
+        });
+
+        this.summaryBar.update(
+            l('Flota') + ': ' + total +
+            ' &nbsp;|&nbsp; <span class="promatic_dashboard_enhancer-dot promatic_dashboard_enhancer-dot-online"></span> ' +
+            online + ' ' + l('en línea') +
+            ' &nbsp;|&nbsp; <span class="promatic_dashboard_enhancer-dot promatic_dashboard_enhancer-dot-offline"></span> ' +
+            (total - online) + ' ' + l('desconectados') +
+            ' &nbsp;—&nbsp; ' + l('actualizado') + ' ' + Ext.Date.format(new Date(), 'H:i:s')
+        );
     },
 
     getModuleBaseUrl: function () {

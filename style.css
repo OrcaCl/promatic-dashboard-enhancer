@@ -1,9 +1,25 @@
 .promatic_dashboard_enhancer-panel {
-    padding: 16px;
+    padding: 8px;
 }
 
-.promatic_dashboard_enhancer-status {
-    font-size: 14px;
-    color: #16A34A;
+.promatic_dashboard_enhancer-summary {
+    padding: 8px 4px;
+    font-size: 13px;
     font-weight: 600;
+}
+
+.promatic_dashboard_enhancer-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+
+.promatic_dashboard_enhancer-dot-online {
+    background-color: #16A34A;
+}
+
+.promatic_dashboard_enhancer-dot-offline {
+    background-color: #DC2626;
 }
