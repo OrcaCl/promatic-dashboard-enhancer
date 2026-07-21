@@ -1,11 +1,42 @@
+/* Escala de espaciado: 4 / 8 / 12 / 16px — no usar valores arbitrarios fuera de esta escala */
+
 .promatic_dashboard_enhancer-panel {
-    padding: 8px;
+    padding: 12px;
 }
 
 .promatic_dashboard_enhancer-summary {
-    padding: 8px 4px;
-    font-size: 13px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background-color: #F8FAFC; /* segunda capa neutra, distinta de la superficie de contenido */
+    border-radius: 4px;
+}
+
+.promatic_dashboard_enhancer-summary__row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.promatic_dashboard_enhancer-summary__updated {
+    margin-left: auto;
+    font-size: 12px;
+    color: #64748B; /* texto muted — nunca color de acento en texto informativo */
+}
+
+.promatic_dashboard_enhancer-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.promatic_dashboard_enhancer-stat__value {
+    font-size: 15px;
     font-weight: 600;
+}
+
+.promatic_dashboard_enhancer-stat__label {
+    font-size: 13px;
+    color: #64748B;
 }
 
 .promatic_dashboard_enhancer-dot {
@@ -13,7 +44,6 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    margin-right: 4px;
 }
 
 .promatic_dashboard_enhancer-dot-online {
@@ -25,7 +55,7 @@
 }
 
 .promatic_dashboard_enhancer-speeding-panel {
-    margin-top: 8px;
+    margin-top: 12px;
 }
 
 .promatic_dashboard_enhancer-chart {

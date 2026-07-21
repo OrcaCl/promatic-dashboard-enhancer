@@ -224,12 +224,25 @@ Ext.define('Store.promatic_dashboard_enhancer.Module', {
         var pct = total > 0 ? Math.round((online / total) * 100) : 0;
 
         this.summaryBar.update(
-            l('Flota') + ': ' + total +
-            ' &nbsp;|&nbsp; <span class="promatic_dashboard_enhancer-dot promatic_dashboard_enhancer-dot-online"></span> ' +
-            online + ' ' + l('en línea') + ' (' + pct + '%)' +
-            ' &nbsp;|&nbsp; <span class="promatic_dashboard_enhancer-dot promatic_dashboard_enhancer-dot-offline"></span> ' +
-            (total - online) + ' ' + l('desconectados') +
-            ' &nbsp;—&nbsp; ' + l('actualizado') + ' ' + Ext.Date.format(new Date(), 'H:i:s')
+            '<div class="promatic_dashboard_enhancer-summary__row">' +
+                '<div class="promatic_dashboard_enhancer-stat">' +
+                    '<span class="promatic_dashboard_enhancer-stat__value">' + total + '</span>' +
+                    '<span class="promatic_dashboard_enhancer-stat__label">' + l('flota') + '</span>' +
+                '</div>' +
+                '<div class="promatic_dashboard_enhancer-stat">' +
+                    '<span class="promatic_dashboard_enhancer-dot promatic_dashboard_enhancer-dot-online"></span>' +
+                    '<span class="promatic_dashboard_enhancer-stat__value">' + online + '</span>' +
+                    '<span class="promatic_dashboard_enhancer-stat__label">' + l('en línea') + ' (' + pct + '%)</span>' +
+                '</div>' +
+                '<div class="promatic_dashboard_enhancer-stat">' +
+                    '<span class="promatic_dashboard_enhancer-dot promatic_dashboard_enhancer-dot-offline"></span>' +
+                    '<span class="promatic_dashboard_enhancer-stat__value">' + (total - online) + '</span>' +
+                    '<span class="promatic_dashboard_enhancer-stat__label">' + l('desconectados') + '</span>' +
+                '</div>' +
+                '<div class="promatic_dashboard_enhancer-summary__updated">' +
+                    l('actualizado') + ' ' + Ext.Date.format(new Date(), 'H:i:s') +
+                '</div>' +
+            '</div>'
         );
     },
 
