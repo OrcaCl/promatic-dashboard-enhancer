@@ -78,13 +78,18 @@ Ext.define('Store.promatic_dashboard_enhancer.Module', {
         Ext.Ajax.request({
             url: '/backend/ax/dashboard/speeding_pie.php',
             method: 'GET',
+            disableCaching: false,
             success: function (resp) {
                 var data = Ext.decode(resp.responseText, true);
                 if (data) {
                     me.renderSpeedingChart(data);
+                } else if (me.speedingChartEl) {
+                    console.error('[promatic_dashboard_enhancer] speeding_pie.php respuesta no es JSON válido:', resp.responseText);
+                    me.speedingChartEl.update(l('No se pudo cargar la distribución de velocidad.'));
                 }
             },
-            failure: function () {
+            failure: function (resp) {
+                console.error('[promatic_dashboard_enhancer] speeding_pie.php falló:', resp.status, resp.statusText, resp.responseText);
                 if (me.speedingChartEl) {
                     me.speedingChartEl.update(l('No se pudo cargar la distribución de velocidad.'));
                 }
