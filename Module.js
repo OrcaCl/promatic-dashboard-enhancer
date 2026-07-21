@@ -75,26 +75,26 @@ Ext.define('Store.promatic_dashboard_enhancer.Module', {
     loadSpeedingData: function () {
         var me = this;
 
-        Ext.Ajax.request({
-            url: '/backend/ax/dashboard/speeding_pie.php',
-            method: 'GET',
-            disableCaching: false,
-            success: function (resp) {
-                var data = Ext.decode(resp.responseText, true);
-                if (data) {
-                    me.renderSpeedingChart(data);
-                } else if (me.speedingChartEl) {
-                    console.error('[promatic_dashboard_enhancer] speeding_pie.php respuesta no es JSON válido:', resp.responseText);
-                    me.speedingChartEl.update(l('No se pudo cargar la distribución de velocidad.'));
+        // Nota: Ext.Ajax.request reescribe rutas relativas bajo el proxy
+        // /store/<extension>/ dentro del contexto de una extensión (404
+        // confirmado en runtime real, 21 jul 2026) — usar fetch() nativo,
+        // que sí resuelve contra el origen real de la página. Ver spec/api.md.
+        fetch('/backend/ax/dashboard/speeding_pie.php', { credentials: 'include' })
+            .then(function (resp) {
+                if (!resp.ok) {
+                    throw new Error('HTTP ' + resp.status);
                 }
-            },
-            failure: function (resp) {
-                console.error('[promatic_dashboard_enhancer] speeding_pie.php falló:', resp.status, resp.statusText, resp.responseText);
+                return resp.json();
+            })
+            .then(function (data) {
+                me.renderSpeedingChart(data);
+            })
+            .catch(function (err) {
+                console.error('[promatic_dashboard_enhancer] speeding_pie.php falló:', err);
                 if (me.speedingChartEl) {
                     me.speedingChartEl.update(l('No se pudo cargar la distribución de velocidad.'));
                 }
-            }
-        });
+            });
     },
 
     renderSpeedingChart: function (data, attempt) {
