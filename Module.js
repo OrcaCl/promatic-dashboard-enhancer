@@ -63,7 +63,7 @@ Ext.define('Store.promatic_dashboard_enhancer.Module', {
         var panel = Ext.create('Ext.panel.Panel', {
             title: l('Distribución de velocidad'),
             cls: 'promatic_dashboard_enhancer-speeding-panel',
-            height: 260,
+            height: 190,
             items: [this.speedingChartEl]
         });
 
@@ -118,11 +118,32 @@ Ext.define('Store.promatic_dashboard_enhancer.Module', {
             categories.push(l('Rango') + ' ' + (i + 1));
         }
 
+        var durations = data.dur;
+
         Highcharts.chart(this.speedingChartEl.getEl().dom, {
-            chart: { type: 'column' },
+            chart: { type: 'column', spacingTop: 4, spacingBottom: 4 },
             title: { text: null },
-            xAxis: { categories: categories, title: { text: l('Rango de velocidad') } },
-            yAxis: { title: { text: l('Distancia (km)') } },
+            xAxis: { categories: categories },
+            yAxis: { title: { text: l('Distancia (km)') }, gridLineColor: '#F1F5F9' },
+            plotOptions: {
+                column: { borderRadius: 4, pointPadding: 0.05, groupPadding: 0.08 }
+            },
+            tooltip: {
+                formatter: function () {
+                    var seconds = durations[this.point.index] || 0;
+                    var hours = Math.floor(seconds / 3600);
+                    var minutes = Math.round((seconds % 3600) / 60);
+                    var durationText = hours > 0 ?
+                        (hours + 'h ' + minutes + 'min') :
+                        (minutes + 'min');
+                    var avgSpeed = seconds > 0 ? Math.round((this.y / seconds) * 3600) : 0;
+
+                    return '<strong>' + this.key + '</strong><br/>' +
+                        l('Distancia') + ': ' + this.y.toFixed(1) + ' km<br/>' +
+                        l('Duración') + ': ' + durationText + '<br/>' +
+                        l('Velocidad promedio') + ': ' + avgSpeed + ' km/h';
+                }
+            },
             series: [{ name: l('Distancia'), data: data.dist, color: '#2563EB' }],
             credits: { enabled: false },
             legend: { enabled: false }
